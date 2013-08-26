@@ -7,6 +7,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Icon;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import tutorial.lib.ModInfo;
@@ -19,6 +20,8 @@ public class TutBlock extends Block {
 	public int y;
 	public int z;
 	public int blk;
+	public Icon txt;
+	public Icon dcon;
 
 	public TutBlock(int id) {
 		super(id, Material.rock);
@@ -36,7 +39,8 @@ public class TutBlock extends Block {
 	public void registerIcons(IconRegister icon) {
 		blockIcon = icon.registerIcon(ModInfo.ID.toLowerCase() + ":"
 				+ Names.tutBlock_unlocalizedName);
-
+		dcon = blockIcon;
+		reset();
 	}
 
 	/**
@@ -50,12 +54,10 @@ public class TutBlock extends Block {
 			if (blk < 0) {
 				if (y > -1) {
 					par1World.setBlock(x, y, z, 0);
-					System.out.printf("NULL:%s,%s,%s\r\n", par2, par3, par4);
 				}
 				x = par2;
 				y = par3;
 				z = par4;
-				System.out.printf("Trigger:%s,%s,%s\r\n", x, y, z);
 				return;
 			}
 			int fx, fy, fz;
@@ -112,21 +114,20 @@ public class TutBlock extends Block {
 	public boolean onBlockActivated(World par1World, int par2, int par3,
 			int par4, EntityPlayer par5EntityPlayer, int par6, float par7,
 			float par8, float par9) {
-		return clicked(par2, par3, par4, par5EntityPlayer);
+		return clicked(par1World, par2, par3, par4, par5EntityPlayer);
 	}
 
 	public void onBlockClicked(World par1World, int par2, int par3, int par4,
 			EntityPlayer par5EntityPlayer) {
-		clicked(par2, par3, par4, par5EntityPlayer);
+		clicked(par1World, par2, par3, par4, par5EntityPlayer);
 	}
 
-	public boolean clicked(int par2, int par3, int par4,
+	public boolean clicked(World par1, int par2, int par3, int par4,
 			EntityPlayer par5EntityPlayer) {
 
-		System.out.printf("-block CLICKED-\n");
 		ItemStack currentitem = par5EntityPlayer.getCurrentEquippedItem();
 		if (currentitem == null) {
-			blk = 0;
+			blk = -1;
 			return true;
 		}
 		int di = currentitem.itemID;
@@ -135,7 +136,8 @@ public class TutBlock extends Block {
 				return false;
 			}
 			blk = di;
-			System.out.printf("-block id set-\n");
+			txt = blocksList[di].getBlockTextureFromSide(1);
+			par1.setBlock(x, y, z, blk);
 			return true;
 		}
 		return false;
@@ -147,5 +149,10 @@ public class TutBlock extends Block {
 		y = -1;
 		z = -1;
 		blk = -1;
+		txt = dcon;
+	}
+
+	public Icon getIcon(int par1, int par2) {
+		return txt;
 	}
 }
